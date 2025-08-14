@@ -19,12 +19,12 @@ echo "→ Installing Causely Docker bundle from $REPO@$VERSION"
 mkdir -p "$TARGET_DIR"
 
 # --- Download files ---
-curl -fsSLo "$TARGET_DIR/docker-compose.yaml"               "$BASE/docker-compose.yaml"
-curl -fsSLo "$TARGET_DIR/configs/mediator-config.yaml"      "$BASE/mediator-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/beyla-config.yaml"         "$BASE/beyla-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/mediator-ml-config.yaml"   "$BASE/mediator-ml-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/executor-config.yaml"      "$BASE/executor-config.yaml"
-curl -fsSLo "$TARGET_DIR/env/.env.template"                 "$BASE/.env.template"
+curl -fsSLo "$TARGET_DIR/docker-compose.yaml"       "$BASE/docker-compose.yaml"
+curl -fsSLo "$TARGET_DIR/mediator-config.yaml"      "$BASE/mediator-config.yaml"
+curl -fsSLo "$TARGET_DIR/beyla-config.yaml"         "$BASE/beyla-config.yaml"
+curl -fsSLo "$TARGET_DIR/mediator-ml-config.yaml"   "$BASE/mediator-ml-config.yaml"
+curl -fsSLo "$TARGET_DIR/executor-config.yaml"      "$BASE/executor-config.yaml"
+curl -fsSLo "$TARGET_DIR/.env.template"             "$BASE/.env.template"
 
 # --- Initialize .env if missing ---
 if [ ! -f "$TARGET_DIR/.env" ]; then
