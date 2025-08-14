@@ -16,25 +16,25 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "→ Installing Causely Docker bundle from $REPO@$VERSION"
-mkdir -p "$TARGET_DIR/configs" "$TARGET_DIR/env"
+mkdir -p "$TARGET_DIR"
 
 # --- Download files ---
 curl -fsSLo "$TARGET_DIR/docker-compose.yaml"               "$BASE/docker-compose.yaml"
-curl -fsSLo "$TARGET_DIR/configs/mediator-config.yaml"      "$BASE/configs/mediator-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/beyla-config.yaml"         "$BASE/configs/beyla-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/mediator-ml-config.yaml"   "$BASE/configs/mediator-ml-config.yaml"
-curl -fsSLo "$TARGET_DIR/configs/executor-config.yaml"      "$BASE/configs/executor-config.yaml"
-curl -fsSLo "$TARGET_DIR/env/.env.template"                 "$BASE/env/.env.template"
+curl -fsSLo "$TARGET_DIR/configs/mediator-config.yaml"      "$BASE/mediator-config.yaml"
+curl -fsSLo "$TARGET_DIR/configs/beyla-config.yaml"         "$BASE/beyla-config.yaml"
+curl -fsSLo "$TARGET_DIR/configs/mediator-ml-config.yaml"   "$BASE/mediator-ml-config.yaml"
+curl -fsSLo "$TARGET_DIR/configs/executor-config.yaml"      "$BASE/executor-config.yaml"
+curl -fsSLo "$TARGET_DIR/env/.env.template"                 "$BASE/.env.template"
 
 # --- Initialize .env if missing ---
-if [ ! -f "$TARGET_DIR/env/.env" ]; then
-  cp "$TARGET_DIR/env/.env.template" "$TARGET_DIR/env/.env"
+if [ ! -f "$TARGET_DIR/.env" ]; then
+  cp "$TARGET_DIR/.env.template" "$TARGET_DIR/.env"
 fi
 
 echo ""
 echo "✓ Files downloaded to: $TARGET_DIR"
 echo ""
 echo "Next steps:"
-echo "1) Edit $TARGET_DIR/env/.env and set CAUSELY_GATEWAY_TOKEN and DOCKER_HOST_NAME"
+echo "1) Edit $TARGET_DIR/.env and set CAUSELY_GATEWAY_TOKEN and DOCKER_HOST_NAME"
 echo "2) Start the stack:"
 echo "   cd $TARGET_DIR && docker compose up -d"

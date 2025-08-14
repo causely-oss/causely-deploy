@@ -17,7 +17,7 @@ services:
     volumes:
       - ./beyla-config.yaml:/config/beyla-config.yaml
   mediator:
-    image: us-docker.pkg.dev/public-causely/public/mediator:v1.0.88-0-gef6093a4e6975497
+    image: us-docker.pkg.dev/public-causely/public/mediator:latest
     user: "0"
     command: ["/bin/mediator", "-config", "/config/config.yaml"]
     environment:
@@ -38,7 +38,7 @@ services:
           cpus: "2.0"
           memory: 8G
   ml:
-    image: us-docker.pkg.dev/public-causely/public/ml:v1.0.88-0-gef6093a4e6975497
+    image: us-docker.pkg.dev/public-causely/public/ml:latest
     command: ["sh", "-c", "uv run mediator/main.py --config /config/config.yaml"]
     expose:
       - "50052" # grpc
@@ -54,7 +54,7 @@ services:
 
 # Executor  can be used to run the executor service
 #  executor:
-#    image: us-docker.pkg.dev/public-causely/public/executor:v1.0.88-0-gef6093a4e6975497
+#    image: us-docker.pkg.dev/public-causely/public/executor:latest
 #    command: ["/bin/executor", "-config", "/config/config.yaml"]
 #    expose:
 #      - "50060"   # gRPC executor
