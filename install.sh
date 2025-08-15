@@ -24,7 +24,7 @@ curl -fsSLo "$TARGET_DIR/mediator-config.yaml"      "$BASE/mediator-config.yaml"
 curl -fsSLo "$TARGET_DIR/beyla-config.yaml"         "$BASE/beyla-config.yaml"
 curl -fsSLo "$TARGET_DIR/mediator-ml-config.yaml"   "$BASE/mediator-ml-config.yaml"
 curl -fsSLo "$TARGET_DIR/executor-config.yaml"      "$BASE/executor-config.yaml"
-curl -fsSLo "$TARGET_DIR/.env.template"             "$BASE/.env.template"
+curl -fsSLo "$TARGET_DIR/.env"                      "$BASE/.env"
 
 # --- Initialize .env if missing ---
 if [ ! -f "$TARGET_DIR/.env" ]; then
