@@ -1,6 +1,6 @@
 services:
   beyla:
-    image: grafana/beyla:2.2
+    image: grafana/beyla:2.6
     pid: "host"
     privileged: true
     environment:

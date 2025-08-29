@@ -7,9 +7,13 @@ gateway:
 ml:
   port: 50052
 
-persistence:
-  enabled: true
-  path: /data/mediator
+repository:
+  persistence:
+    enabled: true
+    path: /data/mediator.gob
+
+  backend_sync:
+    interval: 30s
 
 global:
   host_root: /
