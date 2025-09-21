@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # >>> EDIT THESE TWO LINES <<<
-REPO="Causely/causely-docker"  
+REPO="Causely/causely-deploy"
 VERSION="${VERSION:-main}"
 
 TARGET_DIR="${TARGET_DIR:-causely-docker}"
@@ -19,12 +19,12 @@ echo "→ Installing Causely Docker bundle from $REPO@$VERSION"
 mkdir -p "$TARGET_DIR"
 
 # --- Download files ---
-curl -fsSLo "$TARGET_DIR/docker-compose.yaml"       "$BASE/docker-compose.yaml"
-curl -fsSLo "$TARGET_DIR/mediator-config.yaml"      "$BASE/mediator-config.yaml"
-curl -fsSLo "$TARGET_DIR/beyla-config.yaml"         "$BASE/beyla-config.yaml"
-curl -fsSLo "$TARGET_DIR/mediator-ml-config.yaml"   "$BASE/mediator-ml-config.yaml"
-curl -fsSLo "$TARGET_DIR/executor-config.yaml"      "$BASE/executor-config.yaml"
-curl -fsSLo "$TARGET_DIR/.env"                      "$BASE/.env"
+curl -fsSLo "$TARGET_DIR/docker-compose.yaml"       "$BASE/docker/docker-compose.yaml"
+curl -fsSLo "$TARGET_DIR/mediator-config.yaml"      "$BASE/docker/mediator-config.yaml"
+curl -fsSLo "$TARGET_DIR/beyla-config.yaml"         "$BASE/docker/beyla-config.yaml"
+curl -fsSLo "$TARGET_DIR/mediator-ml-config.yaml"   "$BASE/docker/mediator-ml-config.yaml"
+curl -fsSLo "$TARGET_DIR/executor-config.yaml"      "$BASE/docker/executor-config.yaml"
+curl -fsSLo "$TARGET_DIR/.env"                      "$BASE/docker/.env"
 
 # --- Initialize .env if missing ---
 if [ ! -f "$TARGET_DIR/.env" ]; then
