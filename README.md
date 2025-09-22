@@ -4,7 +4,7 @@
 
 This repository contains deployment configurations for [Causely](https://causely.ai).
 
-## 🚀 Deployment Options
+## Deployment Options
 
 ### [Docker](docker/README.md)
 
@@ -14,6 +14,6 @@ Docker Compose deployment for standalone hosts, development, and testing environ
 
 HashiCorp Nomad deployment for production environments with orchestration.
 
-## 📄 License
+## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
