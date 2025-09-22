@@ -27,7 +27,7 @@ model:
   # IQR model settings
   iqr:
     # Window is used to compute rolling statistics
-    window_size: 72       # 6 hour window, 60 (min) / 5 (min) * 6 = 72
+    window_size: 72 # 6 hour window, 60 (min) / 5 (min) * 6 = 72
     upper_quantile: 0.95
     lower_quantile: 0.00
 
