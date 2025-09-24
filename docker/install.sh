@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # >>> EDIT THESE TWO LINES <<<
-REPO="Causely/causely-deploy"
+REPO="causely-oss/causely-deploy"
 VERSION="${VERSION:-main}"
 
 TARGET_DIR="${TARGET_DIR:-causely-docker}"
