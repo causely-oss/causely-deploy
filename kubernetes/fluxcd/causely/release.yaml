@@ -1,0 +1,25 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: causely
+  namespace: causely
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: causely
+      version: v1.0.92-0-g032e39faaf05c408
+      sourceRef:
+        kind: HelmRepository
+        name: causely
+        namespace: causely
+  values:
+    global:
+      cluster_name: production
+
+    image:
+      tag: v1.0.92-0-g032e39faaf05c408
+
+    mediator:
+      gateway:
+        token: "ABCSDFGHIJKLMNOPQRSTUVWXYZ"
