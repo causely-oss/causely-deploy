@@ -2,14 +2,6 @@ variable "datacenters" {
   type = list(string)
 }
 
-variable "cluster_name" {
-  type = string
-}
-
-variable "gateway_host" {
-  type = string
-}
-
 variable "gateway_token" {
   type = string
 }
@@ -92,7 +84,7 @@ job "mediator" {
       }
 
       env {
-        CAUSELY_GATEWAY_TOKEN = var.gateway_token
+        CAUSELY_GATEWAY_TOKEN = env("CAUSELY_GATEWAY_TOKEN", var.gateway_token)
       }
 
       resources {
@@ -142,11 +134,17 @@ job "mediator" {
           insecure: true
 
         repository:
-          backend_sync:
-            interval: 30s
           persistence:
             enabled: true
             path: /data/mediator.gob
+          garbage_collector:
+            enabled: true
+          timeseries_forecast:
+            enabled: true
+          backend_sync:
+            interval: 30s
+          entity_attribute_metrics:
+            enabled: true
 
         global:
           host_root: /host
