@@ -1,8 +1,7 @@
 # config.hcl
 datacenters = ["dc1"]
 
-cluster_name = "my-cluster"
-gateway_host = "gw.causely.app"
+# token is preferably provided by $CAUSELY_GATEWAY_TOKEN
 gateway_token = "your-gateway-token-here"
 
 mediator_image   = "docker.io/causelyai/mediator:latest"

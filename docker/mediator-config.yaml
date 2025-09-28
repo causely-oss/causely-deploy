@@ -11,13 +11,18 @@ repository:
   persistence:
     enabled: true
     path: /data/mediator.gob
-
+  garbage_collector:
+    enabled: true
+  timeseries_forecast:
+    enabled: true
   backend_sync:
     interval: 30s
+  entity_attribute_metrics:
+    enabled: true
 
 global:
   host_root: /
-  cluster_name: ${DOCKER_HOST_NAME}
+  cluster_name: CHANGE_ME_CLUSTER_NAME
 
 server:
   listen_port: 50051

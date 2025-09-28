@@ -2,14 +2,6 @@ variable "datacenters" {
   type = list(string)
 }
 
-variable "cluster_name" {
-  type = string
-}
-
-variable "gateway_host" {
-  type = string
-}
-
 variable "gateway_token" {
   type = string
 }
@@ -92,7 +84,7 @@ job "mediator" {
       }
 
       env {
-        CAUSELY_GATEWAY_TOKEN = var.gateway_token
+        CAUSELY_GATEWAY_TOKEN = env("CAUSELY_GATEWAY_TOKEN", var.gateway_token)
       }
 
       resources {
@@ -142,11 +134,17 @@ job "mediator" {
           insecure: true
 
         repository:
-          backend_sync:
-            interval: 30s
           persistence:
             enabled: true
             path: /data/mediator.gob
+          garbage_collector:
+            enabled: true
+          timeseries_forecast:
+            enabled: true
+          backend_sync:
+            interval: 30s
+          entity_attribute_metrics:
+            enabled: true
 
         global:
           host_root: /host
@@ -183,6 +181,8 @@ job "mediator" {
                 level: info
             nomad_api_endpoint: http://host.docker.internal:4646
             consul_api_endpoint: http://host.docker.internal:8500
+            loki_endpoint: http://loki.docker.internal:3100
+            logs_enabled: true
             token: ""
 
           - type: Prometheus
@@ -221,7 +221,10 @@ job "mediator" {
                         query: sum by (yext_site, alloc_id) (go_cpu_classes_gc_total_cpu_seconds_total{alloc_id!=""})
 
                       - attribute: DBConnectionUsage
-                        query: sum by (yext_site, alloc_id) (avg_over_time(gorm_dbstats_open_connections[15m]))
+                        query: sum by (yext_site, alloc_id) (avg_over_time(go_sql_connections_open[15m]))
+
+                      - attribute: DBConnectionCapacity
+                        query: sum by (yext_site, alloc_id) (avg_over_time(go_sql_connections_max_open[15m]))
 
                       - attribute: DBQueryDuration
                         query: "sum by (yext_site, alloc_id) (rate(postgres_queries_sum[1m]) / (rate(postgres_queries_count[1m]) > 0 or (rate(postgres_queries_count[1m]) + 1)))"
