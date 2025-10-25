@@ -297,7 +297,7 @@ job "mediator" {
 
       volume_mount {
         volume      = "repository"
-        destination = "/local"
+        destination = "/data"
       }
     }
 
