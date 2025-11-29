@@ -354,7 +354,6 @@ job "mediator" {
         # Model settings
         model:
           min_threshold_ms: 10.00
-          threshold_method: "iqr"
           horizon: 12 # 1 hour forecast with 5 minutes interval
           freq: "5min"
 
@@ -365,16 +364,6 @@ job "mediator" {
             upper_quantile: 0.95
             lower_quantile: 0.00
           min_threshold_ms: 10
-
-          # Prophet model settings
-          prophet:
-            args:
-              daily_seasonality: false
-              weekly_seasonality: false
-              yearly_seasonality: false
-              seasonality_mode: "multiplicative"
-              interval_width: 0.99
-              changepoint_range: 0.8
 
         # webserver settings
         webserver:
