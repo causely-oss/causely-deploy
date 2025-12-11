@@ -49,7 +49,7 @@ scrapers:
 
   - type: CauselyServices
     enabled: true
-    sync_interval: 30s
+    sync_interval: 15m
     logging:
       scraper:
         level: info
@@ -59,6 +59,7 @@ scrapers:
   - type: Docker
     enabled: true
     sync_interval: 60s
+    logs_enabled: true
     logging:
       scraper:
         level: info

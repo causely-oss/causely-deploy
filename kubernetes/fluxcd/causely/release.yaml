@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: causely
-      version: v1.0.98-0-g98809a751156b231
+      version: v1.0.106-0-gc0dc38f6e3bb3bfa
       sourceRef:
         kind: HelmRepository
         name: causely
@@ -18,7 +18,7 @@ spec:
       cluster_name: production
 
     image:
-      tag: v1.0.98-0-g98809a751156b231
+      tag: v1.0.106-0-gc0dc38f6e3bb3bfa
 
     mediator:
       gateway:
