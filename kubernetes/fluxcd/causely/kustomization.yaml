@@ -5,3 +5,10 @@ resources:
 - namespace.yaml
 - release.yaml
 - repository.yaml
+
+postBuild:
+  substitute:
+    CAUSELY_VERSION: "v1.0.106-0-gc0dc38f6e3bb3bfa"
+  substituteFrom:
+    - kind: Secret
+      name: causely-secrets

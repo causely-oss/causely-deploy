@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: causely
-      version: v1.0.106-0-gc0dc38f6e3bb3bfa
+      version: ${CAUSELY_VERSION}
       sourceRef:
         kind: HelmRepository
         name: causely
@@ -18,8 +18,8 @@ spec:
       cluster_name: production
 
     image:
-      tag: v1.0.106-0-gc0dc38f6e3bb3bfa
+      tag: ${CAUSELY_VERSION}
 
     mediator:
       gateway:
-        token: "ABCSDFGHIJKLMNOPQRSTUVWXYZ"
+        token: ${CAUSELY_TOKEN}
