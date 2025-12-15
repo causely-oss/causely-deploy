@@ -1,0 +1,12 @@
+global:
+  cluster_name: production
+
+image:
+  tag: v1.0.129-0-g7ef05a41ae8c7e2d
+
+operator:
+  enabled: true
+
+mediator:
+  gateway:
+    token: "ABCSDFGHIJKLMNOPQRSTUVWXYZ"
