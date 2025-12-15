@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: causely
+  namespace: argocd
+spec:
+  description: "cert-manager project"
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: ClusterRoleBinding
+    - group: '*'
+      kind: ClusterRole
+  destinations:
+    - name: "*"
+      namespace: causely
+      server: https://kubernetes.default.svc
+    - name: '*'
+      namespace: kube-system
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - oci://us-docker.pkg.dev/public-causely/public
