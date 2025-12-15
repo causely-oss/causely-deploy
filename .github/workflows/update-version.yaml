@@ -1,0 +1,38 @@
+name: Update Causely Version
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update version
+        id: update-version
+        run: ./scripts/update-version.sh
+
+      - name: Get version
+        id: get-version
+        if: steps.update-version.outcome == 'success'
+        run: |
+          IMAGE_VERSION=$(curl -s https://docs.causely.ai/meta/version.json | jq -r '.versions[0].imageVersion')
+          echo "version=$IMAGE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.update-version.outcome == 'success'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update CAUSELY_VERSION to ${{ steps.get-version.outputs.version }}"
+          title: "Update CAUSELY_VERSION to ${{ steps.get-version.outputs.version }}"
+          body: "Automated version update from https://docs.causely.ai/meta/version.json"
+          branch: update-causely-version
+          delete-branch: true
+
