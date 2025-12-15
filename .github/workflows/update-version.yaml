@@ -9,15 +9,14 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read  # GITHUB_TOKEN not used for writes anymore
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Update version
         id: update-version
-        run: ./scripts/update-version.sh
+        run: bash ./scripts/update-version.sh
 
       - name: Get version
         id: get-version
@@ -26,14 +25,21 @@ jobs:
           IMAGE_VERSION=$(curl -s https://docs.causely.ai/meta/version.json | jq -r '.versions[0].imageVersion')
           echo "version=$IMAGE_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Create GitHub App token
+        id: app-token
+        if: steps.update-version.outcome == 'success'
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CAUSELY_APP_ID }}
+          private-key: ${{ secrets.CAUSELY_APP_PRIVATE_KEY }}
+
       - name: Create Pull Request
         if: steps.update-version.outcome == 'success'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           commit-message: "Update CAUSELY_VERSION to ${{ steps.get-version.outputs.version }}"
           title: "Update CAUSELY_VERSION to ${{ steps.get-version.outputs.version }}"
           body: "Automated version update from https://docs.causely.ai/meta/version.json"
           branch: update-causely-version
           delete-branch: true
-
