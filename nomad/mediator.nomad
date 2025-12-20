@@ -268,6 +268,43 @@ job "mediator" {
                       - attribute: RequestsTotal
                         query: sum by (yext_site, alloc_id) (rate(request_result_total[1m]))
 
+              rabbitmq:
+                entities:
+                  - discovery:
+                      - nomad_allocation:
+                          namespace: "yext_site"
+                          allocation_id: "alloc_id"
+                    entity:
+                      workload: {}
+                    metrics:
+                      - attribute: MemoryUsage
+                        query: rabbitmq_process_resident_memory_bytes
+                      - attribute: MemoryCapacity
+                        query: rabbitmq_resident_memory_limit_bytes
+                      - attribute: FileDescriptorUsage
+                        query: rabbitmq_process_open_fds
+                      - attribute: FileDescriptorCapacity
+                        query: rabbitmq_process_max_fds
+                  - discovery:
+                      # Use message queue discovery to find queues by queue label
+                      # This works with rabbitmq_queue_messages that has queue labels
+                      # from /metrics/per-object endpoint or rmq_resource_queue joins
+                      - message_queue:
+                          queue_name: "queue"
+                    entity:
+                      queue:
+                        name: queue
+                    metrics:
+                      - attribute: QueueDepth
+                        query: rabbitmq_queue_messages
+                      - attribute: MessageWaitTime
+                        # Calculate wait time using Little's Law: wait_time = queue_depth / consumption_rate
+                        # Uses the absolute rate of change of queue depth as approximation for consumption rate
+                        # When queue is being consumed, rate is negative, so we use abs() to get positive consumption rate
+                        # This gives wait time in seconds. Uses clamp_min() to avoid division by zero
+                        # Note: This is an approximation - for accurate consumption rate, use rabbitmq_queue_messages_delivered_total if available
+                        query: avg_over_time(rabbitmq_queue_messages[5m]) / clamp_min(abs(rate(rabbitmq_queue_messages[5m])), 0.01)
+
           - type: OpenTelemetry
             enabled: true
             sync_interval: 20s
