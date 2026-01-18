@@ -1,6 +1,6 @@
 services:
   beyla:
-    image: grafana/beyla:2.7.11
+    image: grafana/beyla:2.8.5
     pid: "host"
     privileged: true
     environment:
@@ -16,6 +16,19 @@ services:
     restart: unless-stopped
     volumes:
       - ./beyla-config.yaml:/config/beyla-config.yaml
+  alloy:
+    image: grafana/alloy
+    expose:
+      - "4317"  # grpc-otlp
+      - "4318"  # http-otlp
+      - "12345" # webserver
+    environment:
+      ALLOY_DEPLOY_MODE: docker
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./alloy.config:/etc/alloy/config
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config
   mediator:
     image: us-docker.pkg.dev/public-causely/public/mediator:latest
     user: "0"
@@ -25,7 +38,6 @@ services:
     expose:
       - "50051" # grpc-delta
       - "4317" # grpc-otlp
-      - "8125" # http-datadog
       - "8082" # webserver
     restart: unless-stopped
     volumes:
