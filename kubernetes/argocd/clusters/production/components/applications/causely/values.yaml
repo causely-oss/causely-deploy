@@ -1,0 +1,13 @@
+global:
+  cluster_name: production
+
+image:
+  tag: v1.0.107-0-gf1ea7ea6bdbd72d1
+
+mediator:
+  gateway:
+    token: "ABCSDFGHIJKLMNOPQRSTUVWXYZ"
+
+scrapers:
+  prometheus:
+    endpoint: http://prometheus-operated.monitoring:9090

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: causely
+  namespace: argocd
+spec:
+  project: causely
+  destination:
+    namespace: causely
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: oci://us-docker.pkg.dev/public-causely/public
+    chart: causely
+    helm:
+      parameters:
+        - name: image.tag
+          value: latest
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
