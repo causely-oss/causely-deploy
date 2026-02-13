@@ -10,6 +10,10 @@ This repository contains deployment configurations for [Causely](https://causely
 
 Docker Compose deployment for standalone hosts, development, and testing environments.
 
+### [Kubernetes](kubernetes/)
+
+Kubernetes deployment using FluxCD for production environments with GitOps-based orchestration.
+
 ### [Nomad](nomad/README.md)
 
 HashiCorp Nomad deployment for production environments with orchestration.
