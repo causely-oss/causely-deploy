@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: causely-mediation
+  namespace: argocd
+spec:
+  description: "causely-mediation project"
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: ClusterRoleBinding
+    - group: '*'
+      kind: ClusterRole
+    - group: scheduling.k8s.io
+      kind: PriorityClass
+  destinations:
+    - name: "*"
+      namespace: causely-mediation
+      server: https://kubernetes.default.svc
+    - name: '*'
+      namespace: kube-system
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - us-docker.pkg.dev/public-causely/public
