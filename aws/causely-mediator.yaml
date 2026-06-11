@@ -1,0 +1,242 @@
+apiVersion: deployment/v1
+kind: Deployment
+metadata:
+  name: causely-mediator
+  sealID: "12345"
+  model:
+    name: causely-mediator
+    version: v1
+spec:
+  modulepack:
+    name: default
+    version: 1.20.1
+  environment:
+    awsAccountID: "040365544943"
+    awsRegion: us-east-2
+    tfeOrganization: 12345-67891-PRD
+  components:
+    - type: ECSApplication
+      name: causely
+      action: apply
+      connectsTo:
+        - type: ECSCluster
+          name: chaos
+          model: causely-mediator
+          modelVersion: v1
+          deployment: causely-mediator
+        - type: Roles
+          name: causelyroles
+          model: causely-mediator
+          modelVersion: v1
+          deployment: causely-mediator
+      properties:
+        app_image: "us-docker.pkg.dev/public-causely/public/mediator:latest"
+        app_port: 8082
+        app_cpu: 2048
+        app_memory: 8192
+        app_protocol: http
+        app_replicas: 1
+        datadog_enabled: false
+        cpu_autoscaling_enabled: false
+        memory_autoscaling_enabled: false
+        autoscaling_min_capaaity: 1
+        autoscaling_max_capaaity: 1
+        assign_public_ip: true
+        platform_version: LATEST
+        capacity_provider: FARGATE
+        egress_rules:
+          - cidr_blocks:
+              - "0.0.0.0/0"
+            to_port: 0
+            from_port: 0
+            protocol: "-1"
+        app_listeners:
+          - port: 8082
+            protocol: http
+            idle_timeout: 3600
+            request_timeout: 3600
+            health_check:
+              interval_millis: 10000
+              timeout_millis: 50000
+              protocol: http
+              path: "/health"
+              interval: 35
+              timeout: 5
+              healthy_threshold: 2
+              unhealthy_threshold: 10
+        app_env_variables:
+          - name: "CAUSELY_GATEWAY_TOKEN"
+            value: "CHANGE_ME"
+          - name: "CAUSELY_GATEWAY_HOST"
+            value: "gw.causely.app"
+          - name: "CAUSELY_GATEWAY_PORT"
+            value: "443"
+          - name: "ECS_CLUSTER_NAME"
+            value: "chaos"
+        app_command:
+          - "/bin/sh"
+          - "-c"
+          - |
+            cat > /tmp/config.yaml << 'EOF'
+            gateway:
+              host: gw.causely.app
+              port: 443
+              tls: true
+              insecure: false
+            ml:
+              enabled: true
+              host: 127.0.0.1
+              port: 50052
+              token: ""
+              tls: false
+              insecure: true
+            repository:
+              backend_sync:
+                interval: 30s
+              entity_attribute_metrics:
+                enabled: true
+              garbage_collector:
+                enabled: true
+                interval: 5m
+              persistence:
+                enabled: true
+                interval: 60s
+                path: /data/mediator.gob
+                storage: 10Gi
+              timeseries_forecast:
+                enabled: true
+                interval: 1h
+            global:
+              host_root: /
+              cluster_name: chaos
+            server:
+              listen_port: 50051
+            webserver:
+              port: 8082
+            time_series:
+              hostname: 127.0.0.1
+              port: 8428
+            scrapers:
+              - type: AWS
+                enabled: true
+                sync_interval: 60s
+                logging:
+                  scraper:
+                    level: info
+                  repository:
+                    level: info
+                accounts:
+                  - arn: arn:aws:organizations::040365544943:account/o-pyxgi8opc5/040365544943
+                    secretName: aws-secret
+              - type: Dynatrace
+                enabled: true
+                sync_interval: 60s
+                logging:
+                  scraper:
+                    level: info
+                  repository:
+                    level: info
+                accounts:
+                  - secretName: dynatrace-credentials
+              - type: CauselyServices
+                enabled: true
+                sync_interval: 15m
+                logging:
+                  scraper:
+                    level: info
+                  repository:
+                    level: info
+            EOF
+            /bin/mediator -config /tmp/config.yaml
+        app_healthcheck: {
+          command: [ "CMD-SHELL", "curl -f http://localhost:8082/health || exit 1" ],
+          start_period: 60,
+          interval: 30,
+          timeout: 5,
+          retries: 3,
+        }
+        app_port_mappings:
+          - container_port: 4317
+            host_port: 4317
+            protocol: tcp
+          - container_port: 8125
+            host_port: 8125
+            protocol: tcp
+          - container_port: 50051
+            protocol: tcp
+          - container_port: 8082
+            protocol: tcp
+        app_mount_points:
+          - container_path: /data
+            source_volume: mediator
+        app_sidecars:
+          - name: ml
+            image: "us-docker.pkg.dev/public-causely/public/ml:latest"
+            essential: false
+            command:
+              - "/bin/sh"
+              - "-c"
+              - |
+                cat > /tmp/config.yaml << 'EOF'
+                grpc:
+                  host: 0.0.0.0
+                  max_receive_msg_size: 33554432
+                  max_send_msg_size: 33554432
+                  port: 50052
+                model:
+                  freq: 5min
+                  horizon: 12
+                  iqr:
+                    lower_quantile: 0
+                    upper_quantile: 0.95
+                    window_size: 72
+                  min_threshold_ms: 10
+                victoriametrics:
+                  backoff_multiplier: 2
+                  batch_size: 100
+                  batch_write_size: 1000
+                  endpoint: http://127.0.0.1:8428
+                  initial_backoff_seconds: 1
+                  jitter: 0.1
+                  max_backoff_minutes: 20
+                  period: 24h
+                  step: 5m
+                webserver:
+                  host: 0.0.0.0
+                  port: 8081
+                EOF
+                uv run mediator/main.py --config /tmp/config.yaml
+            port_mappings:
+              - container_port: 50052
+                protocol: tcp
+              - container_port: 8081
+                protocol: tcp
+            healthcheck: {
+              command: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ],
+              start_period: 60,
+              interval: 30,
+              timeout: 5,
+              retries: 3,
+            }
+          - name: victoriametrics
+            image: "victoriametrics/victoria-metrics:v1.128.0"
+            essential: false
+            command:
+              - "-search.maxConcurrentRequests=128"
+              - "-search.maxUniqueTimeseries=3000000"
+              - "-search.maxQueryDuration=5m"
+              - "-search.maxQueryLen=65536"
+              - "-retentionPeriod=1d"
+            port_mappings:
+              - container_port: 8428
+                protocol: tcp
+            mount_points:
+              - container_path: /victoria-metrics-data
+                source_volume: victoriametrics
+        app_volumes:
+          - name: mediator
+            host: {}
+          - name: victoriametrics
+            host: {}
+        dependencies: [ ]
+        role: "ecsTaskExecutionRole"
