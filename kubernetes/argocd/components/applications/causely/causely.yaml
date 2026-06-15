@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: us-docker.pkg.dev/public-causely/public
     chart: causely
-    targetRevision: v1.0.129-0-g7ef05a41ae8c7e2d
+    targetRevision: "v1.0.130-0-g41ae72810eb3d3cf"
     helm:
       releaseName: causely
       parameters:

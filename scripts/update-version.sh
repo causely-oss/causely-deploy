@@ -2,7 +2,9 @@
 set -euo pipefail
 
 VERSION_URL="https://docs.causely.ai/meta/version.json"
-KUSTOMIZATION_FILE="kubernetes/fluxcd/causely/kustomization.yaml"
+FLUX_KUSTOMIZATION_FILE="kubernetes/fluxcd/causely/kustomization.yaml"
+ARGOCD_APPLICATION_FILE="kubernetes/argocd/components/applications/causely/causely.yaml"
+UPDATED_FILES=()
 
 # Fetch latest version
 VERSION_JSON=$(curl -s "$VERSION_URL")
@@ -15,31 +17,52 @@ fi
 
 echo "Found latest version: $IMAGE_VERSION"
 
-# Update kustomization.yaml
-if [ ! -f "$KUSTOMIZATION_FILE" ]; then
-  echo "Error: File $KUSTOMIZATION_FILE not found"
-  exit 1
-fi
+update_file_version() {
+  local file=$1
+  local pattern=$2
 
-# Create backup
-cp "$KUSTOMIZATION_FILE" "${KUSTOMIZATION_FILE}.bak"
+  if [ ! -f "$file" ]; then
+    echo "Error: File $file not found"
+    exit 1
+  fi
 
-# Update version
-if sed -i.bak "s/CAUSELY_VERSION: \".*\"/CAUSELY_VERSION: \"$IMAGE_VERSION\"/" "$KUSTOMIZATION_FILE" 2>/dev/null || \
-   sed -i '' "s/CAUSELY_VERSION: \".*\"/CAUSELY_VERSION: \"$IMAGE_VERSION\"/" "$KUSTOMIZATION_FILE" 2>/dev/null; then
-  rm -f "${KUSTOMIZATION_FILE}.bak"
-else
-  echo "Error: Failed to update $KUSTOMIZATION_FILE"
-  mv "${KUSTOMIZATION_FILE}.bak" "$KUSTOMIZATION_FILE"
-  exit 1
-fi
+  cp "$file" "${file}.bak"
+
+  if sed -i.bak "$pattern" "$file" 2>/dev/null || \
+     sed -i '' "$pattern" "$file" 2>/dev/null; then
+    rm -f "${file}.bak"
+  else
+    echo "Error: Failed to update $file"
+    mv "${file}.bak" "$file"
+    exit 1
+  fi
+
+  UPDATED_FILES+=("$file")
+  echo "Updated $file with version $IMAGE_VERSION"
+}
+
+update_file_version "$FLUX_KUSTOMIZATION_FILE" \
+  "s/CAUSELY_VERSION: \".*\"/CAUSELY_VERSION: \"$IMAGE_VERSION\"/"
+
+update_file_version "$ARGOCD_APPLICATION_FILE" \
+  "s/targetRevision: \".*\"/targetRevision: \"$IMAGE_VERSION\"/"
 
 # Check if changes were made
-if git diff --quiet "$KUSTOMIZATION_FILE" 2>/dev/null || ! git rev-parse --git-dir > /dev/null 2>&1; then
-  echo "No changes detected or not in a git repository"
-  exit 0
-else
-  echo "Updated $KUSTOMIZATION_FILE with version $IMAGE_VERSION"
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+  echo "Not in a git repository"
   exit 0
 fi
 
+changed=false
+for file in "${UPDATED_FILES[@]}"; do
+  if ! git diff --quiet "$file" 2>/dev/null; then
+    changed=true
+    break
+  fi
+done
+
+if [ "$changed" = false ]; then
+  echo "No changes detected"
+fi
+
+exit 0
