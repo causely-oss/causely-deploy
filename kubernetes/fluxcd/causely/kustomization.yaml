@@ -9,6 +9,3 @@ resources:
 postBuild:
   substitute:
     CAUSELY_VERSION: "v1.0.130-0-g41ae72810eb3d3cf"
-  substituteFrom:
-    - kind: Secret
-      name: causely-secrets

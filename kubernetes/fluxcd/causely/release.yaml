@@ -21,5 +21,4 @@ spec:
       tag: ${CAUSELY_VERSION}
 
     mediator:
-      gateway:
-        token: ${CAUSELY_TOKEN}
+      secretName: causely-token
