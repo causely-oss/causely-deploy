@@ -20,6 +20,7 @@ spec:
   ignoreDifferences:
     - group: apps
       kind: Deployment
+      name: mediator
       jqPathExpressions:
         - .spec.template.spec.containers[].image
     - group: apps
