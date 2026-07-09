@@ -8,4 +8,4 @@ resources:
 
 postBuild:
   substitute:
-    CAUSELY_VERSION: "v1.0.132-0-gf83e3921285f09c2"
+    CAUSELY_VERSION: "v1.0.133-0-gf9fc2d89e2d4e8b3"
