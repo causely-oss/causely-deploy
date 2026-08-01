@@ -19,12 +19,22 @@ spec:
           value: latest
   ignoreDifferences:
     - group: apps
+      kind: DaemonSet
+      jqPathExpressions:
+        - .spec.template.spec.containers[].image
+    - group: apps
       kind: Deployment
       name: mediator
       jqPathExpressions:
         - .spec.template.spec.containers[].image
     - group: apps
-      kind: DaemonSet
+      kind: Deployment
+      name: trace-controller
+      jqPathExpressions:
+        - .spec.template.spec.containers[].image
+    - group: apps
+      kind: StatefulSet
+      name: trace-worker
       jqPathExpressions:
         - .spec.template.spec.containers[].image
   syncPolicy:
