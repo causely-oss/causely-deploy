@@ -1,6 +1,6 @@
 services:
   beyla:
-    image: grafana/beyla:3.28.0
+    image: grafana/beyla:3.31.0
     pid: "host"
     privileged: true
     environment:
@@ -85,7 +85,7 @@ services:
   #          memory: 256M
 
   victoriametrics:
-    image: victoriametrics/victoria-metrics:v1.128.0
+    image: victoriametrics/victoria-metrics:v1.149.0
     command:
       - "-search.maxConcurrentRequests=128"
       - "-search.maxUniqueTimeseries=3000000"
