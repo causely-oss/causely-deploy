@@ -5,7 +5,12 @@ gateway:
   insecure: false
 
 ml:
+  enabled: true
+  host: ml
   port: 50052
+  token: ""
+  tls: false
+  insecure: true
 
 repository:
   persistence:
