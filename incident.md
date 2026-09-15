@@ -35,20 +35,40 @@ Deduplicate the same incident across multiple systems. Preserve links or IDs tha
 - **Incidents with an identified root cause:** `<count>`
 - **Incidents with a documented remediation action:** `<count>`
 - **Incidents still unresolved or with unknown root cause:** `<count>`
+- **Incidents triggered by alerts:** `<count>`
+- **Incidents triggered by customer reports:** `<count>`
+- **Incidents triggered by other sources:** `<count>`
 - **Primary sources searched:** `<list>`
 
 ## Incident Dataset
 
 Create one row per distinct incident.
 
-| Incident ID | Created | Resolved | Severity | Service / application | Customer impact | Symptoms / alerts | Identified root cause | Root-cause category | Actions taken | Permanent fix | Related deployment / change | Owner / team | Status | Evidence links | Confidence |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Incident ID | Created | Resolved | Severity | Trigger / detection source | Trigger details | Service / application | Customer impact | Symptoms / alerts | Identified root cause | Root-cause category | Actions taken | Permanent fix | Related deployment / change | Owner / team | Status | Evidence links | Confidence |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 
-### Field guidance
+## Field guidance
 
 - **Incident ID:** Use the canonical ID from the source system.
 - **Created / Resolved:** Include timestamp and timezone where available.
 - **Severity:** Preserve the source system’s severity label.
+
+- **Trigger / detection source:** Record what caused the incident to be opened. Use the documented source, such as:
+  - monitoring or observability alert
+  - SLO / error-budget breach
+  - automated anomaly detection
+  - customer report or support ticket
+  - internal user report
+  - on-call observation
+  - synthetic check
+  - security alert
+  - deployment or change event
+  - scheduled review
+  - third-party/vendor notification
+  - unknown / not documented
+
+- **Trigger details:** Capture the alert name, monitor ID, customer ticket ID, reporting channel, deployment ID, or other evidence that initiated the incident. Distinguish the **initial trigger** from symptoms found later during investigation.
+
 - **Service / application:** List directly affected services and known upstream/downstream dependencies.
 - **Customer impact:** Include affected users, transactions, revenue, availability, latency, or SLO impact only when documented.
 - **Symptoms / alerts:** Include alert names, error patterns, latency changes, health-check failures, or user-reported symptoms.
@@ -76,22 +96,26 @@ For each incident, include:
 
 ### `<Incident ID> — <Short title>`
 
+- **Trigger / detection source:**
+- **Trigger details:**
 - **Timeline:** Created, detected, escalated, mitigated, resolved
-- **Affected systems:** 
+- **Affected systems:**
+- **Customer impact:**
 - **Observed symptoms:**
 - **Documented root cause:**
 - **Contributing factors:**
 - **Actions taken during incident:**
 - **Follow-up actions / permanent remediation:**
+- **Related deployment or change:**
 - **Relevant telemetry or evidence:**
 - **Gaps:** What the available record does not establish
 
 ## Comparison-Readiness Fields
 
-For each incident, identify the minimum signals that would be needed to determine whether Causely could have detected, grouped, or diagnosed it:
+For each incident, identify the minimum signals needed to determine whether Causely could have detected, grouped, or diagnosed it.
 
-| Incident ID | Required telemetry / metadata | Available? | Missing signals or access |
-|---|---|---|---|
+| Incident ID | Initial trigger available? | Required telemetry / metadata | Available? | Missing signals or access |
+|---|---|---|---|---|
 
 Consider:
 - Distributed traces and trace propagation
@@ -103,11 +127,34 @@ Consider:
 - CMDB/service ownership data
 - Deployment and version-change history
 - External dependency health signals
+- The original incident trigger, including alert or customer-report metadata
+
+## Trigger Analysis
+
+Summarize incident triggers:
+
+| Trigger type | Incident count | Percentage | Notes |
+|---|---:|---:|---|
+| Monitoring / observability alert |  |  |  |
+| SLO / error-budget breach |  |  |  |
+| Automated anomaly detection |  |  |  |
+| Customer report / support ticket |  |  |  |
+| Internal report |  |  |  |
+| On-call observation |  |  |  |
+| Synthetic check |  |  |  |
+| Deployment / change event |  |  |  |
+| Third-party notification |  |  |  |
+| Other / unknown |  |  |  |
+
+For each trigger category, note:
+- Whether the trigger was early enough to reduce customer impact
+- Whether it pointed directly to the affected service or only surfaced a symptom
+- Whether the incident could plausibly have been detected earlier through topology-aware causal analysis
 
 ## Quality rules
 
 - Use **only evidence available in the sources**.
-- Do not guess missing root causes, actions, ownership, timelines, or customer impact.
+- Do not guess missing root causes, actions, ownership, timelines, triggers, or customer impact.
 - Clearly label `Unknown`, `Not documented`, or `No evidence found`.
 - Separate the documented **root cause** from contributing factors and mitigation actions.
 - Do not treat an alert, symptom, or suspected cause as a confirmed root cause.
@@ -116,4 +163,5 @@ Consider:
 - If sources conflict, preserve the conflict and cite both sources.
 - Prefer postmortems and finalized incident records over chat messages or alert summaries.
 - Include incidents that were created but later determined to be false positives; mark them accordingly.
+- Do not treat the incident creation timestamp as proof of when the underlying issue began.
 ```
