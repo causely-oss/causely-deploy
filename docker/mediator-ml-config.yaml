@@ -19,7 +19,7 @@ victoriametrics:
 
 # Model settings
 model:
-  min_threshold_ms: 10.00
+  min_threshold_ms: 100.00
   horizon: 12 # 1 hour forecast with 5 minutes interval
   freq: "5min"
 
@@ -29,6 +29,38 @@ model:
     window_size: 72 # 6 hour window, 60 (min) / 5 (min) * 6 = 72
     upper_quantile: 0.95
     lower_quantile: 0.00
+  lower_threshold:
+    attributes: ["RequestTotalRate", "ConcurrentUsersMeasured"]
+    k: 3.0
+    min_hours: 12 # no threshold with less data than this
+    full_day_hours: 23 # data spanning this much counts as a full day
+    min_coverage: 0.8 # share of expected samples that must be present
+    window_minutes: 30 # averaging window, matches the drop symptom's window
+    low_quantile: 0.1 # the series' quiet level
+    low_guard: 0.5 # threshold stays below this share of the quiet level
+    partial_low_guard: 0.35 # same, with less than a full day of data
+    eps: 0.01 # request/s, floor before taking the log
+    min_rate: 0.1 # request/s, no threshold below this median rate
+    # No threshold when traffic isn't steady: more than max_unsteady of its 5-minute samples
+    # are below unsteady_fraction of their surrounding unsteady_window_minutes average, such as
+    # traffic that switches on and off within an hour. Set max_unsteady to 1.0 to turn this off.
+    max_unsteady: 0.15
+    unsteady_fraction: 0.5
+    unsteady_window_minutes: 60
+    # Settings for one attribute, over the ones above. The rate settings are in request/s;
+    # concurrent users are a count of users.
+    overrides:
+      ConcurrentUsersMeasured:
+        eps: 1.0 # users, floor before taking the log
+        min_rate: 20.0 # users, no threshold below this median, where a drop is noise
+    # Daily statistics kept as ml_daily_<Attr> series and rewritten every run, so they
+    # outlive a 1-day retention. The threshold is the lower of the one from the stored
+    # days and the one from the last 24 hours.
+    history:
+      enabled: true
+      days: 30 # days kept
+      min_days: 3 # days needed before the history is used
+      quiet_quantile: 0.15 # quantile of the daily quiet levels, so quieter days such as weekends count
 
 # webserver settings
 webserver:
